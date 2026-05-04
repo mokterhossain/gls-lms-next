@@ -1,26 +1,187 @@
 @import "tailwindcss";
 
+/* ========== BASE LIGHT ========== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --text: #0f172a;
+
+  --border: #e5e7eb;
+
+  --sidebar-bg: #ffffff;
+  --header-bg: #ffffff;
+
+  --primary: #4f46e5;
+  --primary-soft: rgba(79, 70, 229, 0.12);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ========== CORE MODES ========== */
+
+.dark {
+  --bg: #0b1220;
+  --surface: #0f172a;
+  --text: #e5e7eb;
+  --border: #1f2937;
+  --sidebar-bg: #0f172a;
+  --header-bg: #0f172a;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.dim {
+  --bg: #111827;
+  --surface: #1f2937;
+  --text: #d1d5db;
+  --border: #374151;
+  --sidebar-bg: #1f2937;
+  --header-bg: #1f2937;
+}
+
+.oled {
+  --bg: #000000;
+  --surface: #000000;
+  --text: #e5e7eb;
+  --border: #111111;
+  --sidebar-bg: #000000;
+  --header-bg: #000000;
+}
+
+/* ========== ADVANCED MODES ========== */
+
+.midnight {
+  --bg: #070b14;
+  --surface: #0b1220;
+  --text: #e2e8f0;
+  --border: #1e293b;
+  --sidebar-bg: #0b1220;
+  --header-bg: #0b1220;
+}
+
+.contrast {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --text: #000000;
+  --border: #000000;
+  --sidebar-bg: #ffffff;
+  --header-bg: #ffffff;
+}
+
+.soft {
+  --bg: #f3f4f6;
+  --surface: #fafafa;
+  --text: #334155;
+  --border: #e2e8f0;
+  --sidebar-bg: #fafafa;
+  --header-bg: #fafafa;
+}
+
+.neutral {
+  --bg: #f8fafc;
+  --surface: #f1f5f9;
+  --text: #0f172a;
+  --border: #cbd5e1;
+  --sidebar-bg: #f1f5f9;
+  --header-bg: #f1f5f9;
+}
+
+.warm {
+  --bg: #fff7ed;
+  --surface: #fffbeb;
+  --text: #7c2d12;
+  --border: #fed7aa;
+  --sidebar-bg: #fffbeb;
+  --header-bg: #fffbeb;
+}
+
+.cool {
+  --bg: #eff6ff;
+  --surface: #f8fafc;
+  --text: #0f172a;
+  --border: #bfdbfe;
+  --sidebar-bg: #f8fafc;
+  --header-bg: #f8fafc;
+}
+
+/* ========== SMOOTH TRANSITIONS ========== */
+* {
+  transition: background-color 250ms ease,
+              color 250ms ease,
+              border-color 250ms ease;
+}
+
+/* Smooth SaaS-style scrollbar */
+.drawer-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120,120,120,0.35) transparent;
+}
+
+.drawer-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.drawer-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.drawer-scroll::-webkit-scrollbar-thumb {
+  background: rgba(120,120,120,0.35);
+  border-radius: 10px;
+}
+
+.drawer-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(120,120,120,0.55);
+}
+
+/* IMPORTANT: prevents background scroll shift issues */
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 120, 0.3);
+  border-radius: 999px;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
   }
 }
 
+.animate-slideIn {
+  animation: slideIn 0.25s ease-out;
+}
+
+/* progress bar shrink */
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.animate-shrink {
+  animation: shrink 3s linear forwards;
+}
+@keyframes toast-progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.animate-toast-progress {
+  animation: toast-progress 3.5s linear forwards;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overscroll-behavior: none;
 }

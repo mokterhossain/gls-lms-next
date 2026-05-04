@@ -1,0 +1,275 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//////////////////////////
+// ENUMS
+//////////////////////////
+
+enum TokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+enum CrudAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+}
+
+enum PolicyEffect {
+  ALLOW
+  DENY
+}
+
+//////////////////////////
+// CORE MODELS
+//////////////////////////
+
+model User {
+  id           String @id @default(uuid())
+  username     String @unique
+  email        String @unique
+  passwordHash String
+
+  firstName String?
+  lastName  String?
+
+  isActive   Boolean @default(true)
+  isVerified Boolean @default(false)
+
+  lastLogin DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  organizations UserOrganization[]
+  roles         UserRole[]
+  sessions      Session[]
+  tokens        UserToken[]
+  policies      PolicyUser[]
+  auditLogs     AuditLog[]
+}
+
+model Organization {
+  id   String @id @default(uuid())
+  name String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  users     UserOrganization[]
+  branches  Branch[]
+  userRoles UserRole[]
+}
+
+model Branch {
+  id             String @id @default(uuid())
+  name           String
+  organizationId String
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  userRoles    UserRole[]
+
+  createdAt DateTime @default(now())
+
+  @@index([organizationId])
+}
+
+model UserOrganization {
+  id             String @id @default(uuid())
+  userId         String
+  organizationId String
+
+  isOwner Boolean @default(false)
+
+  user         User         @relation(fields: [userId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, organizationId])
+}
+
+//////////////////////////
+// RBAC MODELS
+//////////////////////////
+
+model Role {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+
+  permissions RolePermission[]
+  users       UserRole[]
+  policies    PolicyRole[]
+
+  @@unique([name])
+}
+
+model Module {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+
+  permissions Permission[]
+  policies    Policy[]
+}
+
+model Permission {
+  id       String     @id @default(uuid())
+  moduleId String
+  action   CrudAction
+
+  module Module           @relation(fields: [moduleId], references: [id])
+  roles  RolePermission[]
+
+  @@unique([moduleId, action])
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+}
+
+model UserRole {
+  id             String  @id @default(uuid())
+  userId         String
+  roleId         String
+  organizationId String
+  branchId       String?
+
+  user         User         @relation(fields: [userId], references: [id])
+  role         Role         @relation(fields: [roleId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  branch       Branch?      @relation(fields: [branchId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, roleId, organizationId, branchId])
+  @@index([userId])
+  @@index([organizationId])
+}
+
+//////////////////////////
+// ABAC MODELS
+//////////////////////////
+
+model Policy {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+
+  moduleId String
+  module   Module @relation(fields: [moduleId], references: [id])
+
+  action CrudAction
+  effect PolicyEffect
+
+  conditions Json // dynamic rule engine
+
+  roles PolicyRole[]
+  users PolicyUser[]
+
+  createdAt DateTime @default(now())
+
+  @@index([moduleId])
+}
+
+model PolicyRole {
+  policyId String
+  roleId   String
+
+  policy Policy @relation(fields: [policyId], references: [id])
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  @@id([policyId, roleId])
+}
+
+model PolicyUser {
+  policyId String
+  userId   String
+
+  policy Policy @relation(fields: [policyId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@id([policyId, userId])
+}
+
+//////////////////////////
+// AUTH & SECURITY
+//////////////////////////
+
+model Session {
+  id     String @id @default(uuid())
+  userId String
+
+  refreshToken String
+  userAgent    String?
+  ipAddress    String?
+
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model UserToken {
+  id     String    @id @default(uuid())
+  userId String
+  token  String
+  type   TokenType
+
+  expiresAt DateTime
+  used      Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+//////////////////////////
+// AUDIT LOG
+//////////////////////////
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  action     String
+  entityType String
+  entityId   String?
+
+  oldValue Json?
+  newValue Json?
+
+  ipAddress String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
