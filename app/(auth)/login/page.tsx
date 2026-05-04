@@ -63,6 +63,7 @@ export default function LoginPage() {
             fill
             className="object-cover"
             priority
+            unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-transparent" />
         </div>
@@ -81,6 +82,7 @@ export default function LoginPage() {
               width={140}
               height={50}
               className="mb-3"
+              unoptimized
             />
           </div>
 

@@ -18,7 +18,10 @@ export async function proxy(req: NextRequest) {
   const isPublicAsset =
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
-    pathname.startsWith("/images");
+    pathname.startsWith("/images") ||
+    pathname.startsWith("/public") ||
+    pathname.startsWith("/logo.png") ||
+    pathname.startsWith("/inner_experience_01.jpg");
 
   /* =========================
      SKIP STATIC
