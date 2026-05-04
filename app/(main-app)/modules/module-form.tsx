@@ -107,7 +107,7 @@ export default function ModuleForm({
         </div>
 
         {/* DESCRIPTION */}
-        {/* <div>
+        <div>
           <label className="text-sm opacity-70">Description</label>
           <textarea
             value={description}
@@ -119,7 +119,7 @@ export default function ModuleForm({
               borderColor: "var(--border)",
             }}
           />
-        </div> */}
+        </div>
 
       </div>
 
